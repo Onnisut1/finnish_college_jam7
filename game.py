@@ -17,8 +17,9 @@ load_img = pygame.image.load
 #Kuvien lisääminen
 palikka_png = load_img('Multa.png')
 palikka2_png = load_img('Ruoho.png')
+platform_png = load_img('platform.png')
 
-background_colour = (135, 206, 235)
+background_colour = (128, 128, 128)
 
 
 def load_map(path):
@@ -64,7 +65,7 @@ def change_action(action_var, frame, new_value):
 animation_database = {}
 #Load animations
 animation_database['walk'] = load_animation('animations/walk',[7,7,7,7,7])
-animation_database['idle'] = load_animation('animations/idle',[15,15])
+animation_database['idle'] = load_animation('animations/idle',[15,15,15,15,15])
 
 player_action = 'idle'
 player_frame = 0
@@ -113,7 +114,7 @@ player_rect = pygame.Rect(50,50,32,32)
 
 while True:
     scroll[0] += (player_rect.x-scroll[0]-300)/20
-    scroll[1] += (player_rect.y-scroll[1]-250)/20
+    scroll[1] += (player_rect.y-scroll[1]-150)/20
 
     display.fill(background_colour)
 
@@ -125,7 +126,7 @@ while True:
             if tile == '1':
                 display.blit(palikka_png, (x * tile_size - scroll[0], y * tile_size - scroll[1]))
             if tile == '2':
-                display.blit(palikka2_png, (x * tile_size - scroll[0], y * tile_size - scroll[1])) 
+                display.blit(platform_png, (x * tile_size - scroll[0], y * tile_size - scroll[1])) 
             if tile != '0':
                 tile_rects.append(pygame.Rect(x * tile_size, y * tile_size, tile_size, tile_size))
             x += 1         
