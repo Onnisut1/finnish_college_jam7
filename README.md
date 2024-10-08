@@ -15,3 +15,12 @@ Fixer knight?
 Game where you have to fix some place broken by monsters. 
 
 ### Todo
+
+Dangerous objects
+
+Falling crate
+Falling iron beam
+Toxic waste barrel
+Broken electric wires
+
+
