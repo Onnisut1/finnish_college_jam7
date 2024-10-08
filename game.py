@@ -9,11 +9,8 @@ pygame.init()
 pygame.display.set_caption('Peli')
 
 
-#Näytön asentaminen ja näytön koko
 window_size = (800,500)
-
 screen = pygame.display.set_mode(window_size,0,32)
-
 display = pygame.Surface((800, 500))
 
 load_img = pygame.image.load
@@ -39,6 +36,8 @@ def load_map(path):
 
 game_map = load_map('map1')
 tile_size = 32
+
+scroll = [0,0]
 
 def collision_test(rect, tiles):
     hit_list = []
@@ -70,17 +69,18 @@ def move(rect, movement, tiles):
     return rect, collision_types
 
 player_y_momentum = 0
-
+jump_counter = 0
 
 moving_left = False
 moving_right = False
 
 player_rect = pygame.Rect(50,50,player_png.get_width(),player_png.get_height())
 
-
 #Game loop
 
 while True:
+    scroll[0] += (player_rect.x-scroll[0]-300)/20
+    scroll[1] += (player_rect.y-scroll[1]-250)/20
 
     display.fill(background_colour)
 
@@ -90,9 +90,9 @@ while True:
         x = 0
         for tile in row:
             if tile == '1':
-                display.blit(palikka_png, (x * tile_size, y * tile_size))
+                display.blit(palikka_png, (x * tile_size - scroll[0], y * tile_size - scroll[1]))
             if tile == '2':
-                display.blit(palikka2_png, (x * tile_size, y * tile_size)) 
+                display.blit(palikka2_png, (x * tile_size - scroll[0], y * tile_size - scroll[1])) 
             if tile != '0':
                 tile_rects.append(pygame.Rect(x * tile_size, y * tile_size, tile_size, tile_size))
             x += 1         
@@ -106,28 +106,19 @@ while True:
         player_movement[0] -= 2
     player_movement[1] += player_y_momentum
     player_y_momentum += 0.2
-    if player_y_momentum > 3:
-        player_y_momentum = 3
+    if player_y_momentum > 4:
+        player_y_momentum = 4
     
-
     
     player_rect, collisions = move(player_rect, player_movement, tile_rects) 
-    display.blit(player_png, (player_rect.x, player_rect.y))
-   
-    # if moving_right == True:
-    #     player_location[0] += 4
-    # if moving_left == True:
-    #     player_location[0] -= 4
-    
-    # player_rect.x = player_location[0]
-    # player_rect.y = player_location[1]
-    
-    #Bouncy screen bottom
-    # if player_location[1] > window_size[1]-player_png.get_height():
-    #     player_y_momentum = -player_y_momentum
-    # else:
-    #     player_y_momentum += 0.2
-    # player_location[1] += player_y_momentum
+    display.blit(player_png, (player_rect.x-scroll[0], player_rect.y-scroll[1]))
+
+    if collisions['bottom']:
+        player_y_momentum = 0
+        jump_counter = 0
+
+    if collisions['top']:
+        player_y_momentum = 0
 
     for event in pygame.event.get():
         if event.type == QUIT:
@@ -139,7 +130,10 @@ while True:
             if event.key == K_LEFT:
                 moving_left = True
             if event.key == K_SPACE:
+                if jump_counter < 2:
                     player_y_momentum = -5
+                    jump_counter += 1
+ 
         if event.type == pygame.KEYUP:
             if event.key == K_RIGHT:
                 moving_right = False
