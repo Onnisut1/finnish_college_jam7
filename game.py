@@ -15,8 +15,6 @@ display = pygame.Surface((800, 500))
 
 load_img = pygame.image.load
 #Kuvien lisääminen
-player_png = load_img('Pelaaja.png')
-player_png.set_colorkey((255,255,255))
 palikka_png = load_img('Multa.png')
 palikka2_png = load_img('Ruoho.png')
 
@@ -36,6 +34,41 @@ def load_map(path):
 
 game_map = load_map('map1')
 tile_size = 32
+
+global animation_frames
+animation_frames = {}
+
+def load_animation(path, frame_durations):
+    global animation_frames
+    animation_name = path.split('/')[-1]
+    animation_frame_data = []
+    n = 0 
+    for frame in frame_durations:
+        animation_frame_id = animation_name + '_' + str(n)
+        img_loc = path + '/' + animation_frame_id + '.png'
+        aniamtion_image = pygame.image.load(img_loc).convert()
+        aniamtion_image.set_colorkey((0,0,0))
+        animation_frames[animation_frame_id] = aniamtion_image.copy()
+        for i in range (frame):
+            animation_frame_data.append(animation_frame_id)
+        n += 1
+    return animation_frame_data
+
+
+def change_action(action_var, frame, new_value):
+    if action_var != new_value:
+        action_var = new_value
+        frame = 0 
+    return action_var, frame
+
+animation_database = {}
+#Load animations
+animation_database['walk'] = load_animation('animations/walk',[7,7,7,7,7])
+animation_database['idle'] = load_animation('animations/idle',[15,15])
+
+player_action = 'idle'
+player_frame = 0
+player_flip = False
 
 scroll = [0,0]
 
@@ -74,7 +107,7 @@ jump_counter = 0
 moving_left = False
 moving_right = False
 
-player_rect = pygame.Rect(50,50,player_png.get_width(),player_png.get_height())
+player_rect = pygame.Rect(50,50,32,32)
 
 #Game loop
 
@@ -108,10 +141,25 @@ while True:
     player_y_momentum += 0.2
     if player_y_momentum > 4:
         player_y_momentum = 4
+
+    if player_movement[0] > 0:
+        player_action,player_frame = change_action(player_action, player_frame, 'walk')
+        player_flip = False
+    if player_movement[0] == 0:
+        player_action,player_frame = change_action(player_action, player_frame, 'idle')        
+    if player_movement[0] < 0:
+        player_action,player_frame = change_action(player_action, player_frame, 'walk')
+        player_flip = True
     
     
-    player_rect, collisions = move(player_rect, player_movement, tile_rects) 
-    display.blit(player_png, (player_rect.x-scroll[0], player_rect.y-scroll[1]))
+    player_frame += 1
+    if player_frame >= len(animation_database[player_action]):
+        player_frame = 0
+    player_img_id = animation_database[player_action][player_frame]
+    player_image = animation_frames[player_img_id]
+    display.blit(pygame.transform.flip(player_image,player_flip,False), (player_rect.x-scroll[0], player_rect.y-scroll[1]))
+
+    player_rect, collisions = move(player_rect, player_movement, tile_rects)
 
     if collisions['bottom']:
         player_y_momentum = 0
