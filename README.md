@@ -16,11 +16,9 @@ Game where you have to fix some place broken by monsters.
 
 ### Todo
 
-Dangerous objects
+Top priorities
+Make falling objects disappear after touching ground
+Some kind of end for the game
 
-Falling crate
-Falling iron beam
-Toxic waste barrel
-Broken electric wires
 
 
